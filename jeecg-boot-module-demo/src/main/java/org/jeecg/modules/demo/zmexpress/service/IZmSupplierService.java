@@ -1,38 +1,30 @@
 package org.jeecg.modules.demo.zmexpress.service;
 
+import org.jeecg.modules.demo.zmexpress.entity.ZmPartner;
 import org.jeecg.modules.demo.zmexpress.entity.ZmSupplier;
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.jeecg.common.exception.JeecgBootException;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
  * @Description: 供应商
  * @Author: jeecg-boot
- * @Date:   2021-08-03
+ * @Date:   2021-10-10
  * @Version: V1.0
  */
 public interface IZmSupplierService extends IService<ZmSupplier> {
 
-	/**根节点父ID的值*/
-	public static final String ROOT_PID_VALUE = "0";
+	/**
+	 * 删除一对多
+	 */
+	public void delMain (String id);
 	
-	/**树节点有子节点状态值*/
-	public static final String HASCHILD = "1";
-	
-	/**树节点无子节点状态值*/
-	public static final String NOCHILD = "0";
+	/**
+	 * 批量删除一对多
+	 */
+	public void delBatchMain (Collection<? extends Serializable> idList);
 
-	/**新增节点*/
-	void addZmSupplier(ZmSupplier zmSupplier);
-	
-	/**修改节点*/
-	void updateZmSupplier(ZmSupplier zmSupplier) throws JeecgBootException;
-	
-	/**删除节点*/
-	void deleteZmSupplier(String id) throws JeecgBootException;
-
-	/**查询所有数据，无分页*/
-    List<ZmSupplier> queryTreeListNoPage(QueryWrapper<ZmSupplier> queryWrapper);
 
 }

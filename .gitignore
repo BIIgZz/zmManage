@@ -1,4 +1,17 @@
+<<<<<<< HEAD
 /target/
 /.idea/
 *.iml
 rebel.xml
+=======
+## ide
+**/.idea
+*.iml
+
+## backend
+**/target
+**/logs
+
+## front
+**/*.lock
+>>>>>>> 1b5fb5407ef3a73d4322dbd02087fbeb4c6c1f3d
