@@ -163,7 +163,6 @@ public class ZmImportFbaController {
             return Result.error("未找到对应数据");
         }
         return Result.OK(zmImportFba);
-
     }
 
     /**
@@ -524,6 +523,24 @@ public class ZmImportFbaController {
 //          }
 //      }
         return Result.OK("文件导入失败！");
+    }
+    /**
+     * 放入出货单
+     * 先获取订单，然后新建一个出货单放入出货单
+     * 修改订单状态
+     * @param request
+     * @param response
+     * @return
+     */
+    @PutMapping(value = "/change")
+    public Result<?> change() {
+       //判断当前订单状态 和 需要转换的状态
+
+        //切换状态
+
+        //存储状态
+        System.out.println("状态更新成功！");
+        return Result.OK("状态更新成功！");
     }
 
 }

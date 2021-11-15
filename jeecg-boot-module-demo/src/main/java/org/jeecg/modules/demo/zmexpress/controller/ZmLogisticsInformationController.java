@@ -142,6 +142,7 @@ public class ZmLogisticsInformationController extends JeecgController<ZmLogistic
 		if(zmLogisticsInformation==null) {
 			return Result.error("未找到对应数据");
 		}
+		System.out.println("--------------");
 		return Result.OK(zmLogisticsInformation);
 	}
 
