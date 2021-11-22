@@ -1,5 +1,7 @@
 package org.jeecg.modules.demo.zmexpress.utils;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.jeecg.modules.demo.zmexpress.entity.ZmHscode;
 import org.jeecg.modules.demo.zmexpress.entity.ZmImportGood;
@@ -9,6 +11,7 @@ import org.jeecg.modules.demo.zmexpress.service.IZmProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,4 +54,19 @@ public class InsertUtils {
         }
         return true;
     }
+
+//    /**
+//     * 字符串转换为JSONObject的List
+//     * @param str
+//     * @return
+//     */
+//    public static List<JSONObject> strToList(String str) {
+//        List<JSONObject> res = new ArrayList<>();
+//        JSONArray json = JSONArray.fromObject(str);
+//        for(int i = 0; i < json.size(); i++) {
+//            res.add(json.getJSONObject(i));
+//        }
+//        return res;
+//    }
+    
 }

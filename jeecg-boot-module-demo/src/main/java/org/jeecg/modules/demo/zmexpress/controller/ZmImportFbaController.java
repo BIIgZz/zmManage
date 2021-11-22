@@ -1,7 +1,6 @@
 package org.jeecg.modules.demo.zmexpress.controller;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,11 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.result.ExcelImportResult;
-import org.apache.poi.hpsf.Decimal;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.JSONSerializer;
 import org.jeecg.modules.demo.zmexpress.entity.ZmProduct;
 import org.jeecg.modules.demo.zmexpress.utils.InsertUtils;
 import org.jeecgframework.poi.excel.def.TemplateExcelConstants;
-import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.entity.TemplateExportParams;
 import org.jeecg.common.system.vo.LoginUser;
 import org.apache.shiro.SecurityUtils;
@@ -272,7 +272,7 @@ public class ZmImportFbaController {
         }
         map.put("maplist", listMap);
         TemplateExportParams params = new TemplateExportParams();
-        params.setTemplateUrl("E:\\postGraduate\\express\\jeecg-boot-master\\jeecg-boot\\jeecg-boot-module-demo\\src\\main\\resources\\exportTemplate\\template.xls");
+        params.setTemplateUrl("D:\\idea\\zmManage\\jeecg-boot-module-demo\\src\\main\\resources\\exportTemplate\\template.xls");
 
         // Step.4 AutoPoi 导出Excel
         ModelAndView mv = new ModelAndView(new JeecgTemplateExcelView());
@@ -533,9 +533,20 @@ public class ZmImportFbaController {
      * @return
      */
     @PutMapping(value = "/change")
-    public Result<?> change() {
+    public Result<?> change(@RequestBody String ids) {
        //判断当前订单状态 和 需要转换的状态
-
+        ids = ids.replaceAll("[^-?0-9]+", " ");
+        List<String> list = Arrays.asList(ids.trim().split(" "));
+        System.out.println(Arrays.asList(ids.trim().split(" ")));
+        for (String id : list) {
+            ZmImportFba zmImportFba = zmImportFbaService.getById(id);
+            if (zmImportFba == null) {
+                return Result.error("未找到对应数据");
+            }
+            zmImportFba.setStatus(5+"");
+//            zmImportFbaService.updateMain(zmImportFba,);
+        }
+        System.out.println(ids);
         //切换状态
 
         //存储状态
