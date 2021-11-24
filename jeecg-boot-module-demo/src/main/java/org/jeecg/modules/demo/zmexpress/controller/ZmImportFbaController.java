@@ -540,13 +540,14 @@ public class ZmImportFbaController {
         System.out.println(Arrays.asList(ids.trim().split(" ")));
         for (String id : list) {
             ZmImportFba zmImportFba = zmImportFbaService.getById(id);
+            List<ZmImportGood> zmImportGoods = zmImportGoodService.selectByMainId(id);
+
             if (zmImportFba == null) {
                 return Result.error("未找到对应数据");
             }
             zmImportFba.setStatus(5+"");
-//            zmImportFbaService.updateMain(zmImportFba,);
+            zmImportFbaService.updateMain(zmImportFba,zmImportGoods);
         }
-        System.out.println(ids);
         //切换状态
 
         //存储状态
