@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @Description: 货柜详情
  * @Author: jeecg-boot
- * @Date:   2021-07-13
+ * @Date:   2021-12-02
  * @Version: V1.0
  */
 @Service
