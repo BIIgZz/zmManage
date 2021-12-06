@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 /**
  * @Description: 运单表
  * @Author: jeecg-boot
- * @Date:   2021-12-02
+ * @Date:   2021-12-06
  * @Version: V1.0
  */
 public interface ZmWaybillMapper extends BaseMapper<ZmWaybill> {

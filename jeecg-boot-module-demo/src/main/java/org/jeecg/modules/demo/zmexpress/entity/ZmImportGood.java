@@ -16,7 +16,7 @@ import java.io.UnsupportedEncodingException;
 /**
  * @Description: 货柜详情
  * @Author: jeecg-boot
- * @Date:   2021-12-02
+ * @Date:   2021-12-06
  * @Version: V1.0
  */
 @ApiModel(value="zm_import_good对象", description="货柜详情")

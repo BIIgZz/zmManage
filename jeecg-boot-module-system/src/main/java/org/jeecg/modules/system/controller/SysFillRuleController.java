@@ -207,6 +207,7 @@ public class SysFillRuleController extends JeecgController<SysFillRule, ISysFill
             obj.put("result", result);
             results.add(obj);
         }
+        System.out.println(results);
         return Result.ok(results);
     }
 

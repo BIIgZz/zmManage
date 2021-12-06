@@ -3,6 +3,7 @@ package org.jeecg.modules.demo.zmexpress.controller;
 import java.io.UnsupportedEncodingException;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +13,9 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.afterturn.easypoi.excel.entity.result.ExcelImportResult;
+import org.jeecg.modules.demo.zmexpress.entity.ZmProduct;
+import org.jeecg.modules.demo.zmexpress.utils.InsertUtils;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -45,7 +49,7 @@ import org.jeecg.common.aspect.annotation.AutoLog;
  /**
  * @Description: 运单表
  * @Author: jeecg-boot
- * @Date:   2021-12-02
+ * @Date:   2021-12-06
  * @Version: V1.0
  */
 @Api(tags="运单表")
@@ -57,7 +61,8 @@ public class ZmWaybillController {
 	private IZmWaybillService zmWaybillService;
 	@Autowired
 	private IZmImportGoodService zmImportGoodService;
-	
+	 @Autowired
+	 private InsertUtils insertUtils;
 	/**
 	 * 分页列表查询
 	 *
@@ -220,7 +225,7 @@ public class ZmWaybillController {
     }
 
     /**
-    * 通过excel导入数据
+    * 通过excel批量导入数据
     *
     * @param request
     * @param response
@@ -257,5 +262,188 @@ public class ZmWaybillController {
       }
       return Result.OK("文件导入失败！");
     }
+	 /**
+	  * 通过excel模板导入数据
+	  *
+	  * @param request
+	  * @param response
+	  * @return
+	  */
+	 @RequestMapping(value = "/importExcelSingle", method = RequestMethod.POST)
+	 public Result<?> importExcelSingle(HttpServletRequest request, HttpServletResponse response) {
+		 MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+		 Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
+
+		 //key-value
+
+		 for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
+			 MultipartFile file = entity.getValue();// 获取上传文件对象
+			 cn.afterturn.easypoi.excel.entity.ImportParams params = new cn.afterturn.easypoi.excel.entity.ImportParams();
+			 params.setKeyMark(":");
+			 params.setReadSingleCell(true);
+			 params.setTitleRows(17);
+
+			 try {
+				 ExcelImportResult<Map> result = cn.afterturn.easypoi.excel.ExcelImportUtil.importExcelMore(file.getInputStream(), Map.class, params);
+				 List<ZmImportGood> importGoodList = new ArrayList<>();
+				 Map<String, Object> map = result.getMap();
+				 Map map1 = result.getList().get(0);
+
+				 for (int i = 0; i < result.getList().size(); i++) {
+					 ZmImportGood zmImportGood = new ZmImportGood();
+					 zmImportGood.setFbaid((String) map.get("FBA ID*:"));
+					 zmImportGood.setApplication((String) result.getList().get(i).get("产品用途*"));
+					 zmImportGood.setCaseid((String) result.getList().get(i).get("货箱编号*"));
+					 zmImportGood.setWeight(Double.parseDouble(result.getList().get(i).get("货箱重量(KG)*").toString()));
+					 zmImportGood.setLength(Double.parseDouble(result.getList().get(i).get("货箱长度(CM)*").toString()));
+//					zmImportGood.setWeight((String) map.get("货箱宽度(CM)*:"));
+					 zmImportGood.setHeight(Double.parseDouble(result.getList().get(i).get("货箱高度(CM)*").toString()));
+					 zmImportGood.setEnName((String) result.getList().get(i).get("产品英文品名*"));
+					 zmImportGood.setCnName((String) result.getList().get(i).get("产品中文品名*"));
+					 zmImportGood.setDeclaredPrice(result.getList().get(i).get("产品申报单价*").toString());
+					 zmImportGood.setDeclaredNumber((Integer) result.getList().get(i).get("产品申报数量*"));
+					 zmImportGood.setMaterial(result.getList().get(i).get("产品材质*").toString());
+					 try {
+						 Object o = result.getList().get(i).get("产品海关编码*");
+						 double v = Double.parseDouble(o.toString());
+						 NumberFormat numberFormat = NumberFormat.getInstance();
+						 numberFormat.setGroupingUsed(false);
+						 String format = numberFormat.format(v);
+						 zmImportGood.setHscode(format);
+					 } catch (NumberFormatException e) {
+						 zmImportGood.setHscode(result.getList().get(i).get("产品海关编码*").toString());
+					 }
+					 zmImportGood.setBrand((String) result.getList().get(i).get("产品品牌*"));
+					 zmImportGood.setType((String) result.getList().get(i).get("品牌类型*"));
+					 zmImportGood.setModel((String) result.getList().get(i).get("产品型号*"));
+//					zmImportGood.set((String) map.get("PO Number*"));
+					 zmImportGood.setLink((String) result.getList().get(i).get("产品销售链接"));
+					 zmImportGood.setPrice((Double) result.getList().get(i).get("产品销售价格"));
+					 zmImportGood.setPicture((String) result.getList().get(i).get("产品图片链接"));
+					 importGoodList.add(zmImportGood);
+				 }
+
+				 ZmWaybill zmWaybill = new ZmWaybill();
+//				ZmImportFbaPage zmImportFbaPage = new ZmImportFbaPage();
+				 zmWaybill.setAddress((String) map.get("收件人地址一*:"));
+				 zmWaybill.setFbaId((String) map.get("FBA ID*:"));
+				 zmWaybill.setOrderId((String) map.get("客户订单号:"));
+				 zmWaybill.setWarehouseId((String) map.get("地址库编码*:"));
+				 zmWaybill.setService((String) map.get("服务*:"));
+				 zmWaybill.setName((String) map.get("收件人姓名*:"));
+//				 zmWaybill.setCity((String) map.get("收件人城市*:"));
+//				 zmWaybill.setProvince((String) map.get("收件人省份/州*(二字代码):"));
+//				 zmWaybill.setPostcode((String) map.get("收件人邮编*:"));
+//				 zmWaybill.setCountryCode((String) map.get("收件人国家代码(二字代码)*:"));
+//				 zmWaybill.setTel((String) map.get("收件人电话:"));
+//				 zmWaybill.setEmail((String) map.get("收件人邮箱:"));
+//				zmWaybill.setCaseNumber(Integer.parseInt((String) map.get("总箱数*:")) );
+//				 if (map.get("带电*:").equals("是")) {
+//					 zmWaybill.setElectrical(1);
+//				 } else {
+//					 zmWaybill.setElectrical(0);
+//				 }
+//				 if (map.get("带磁*:").equals("是")) {
+//					 zmWaybill.setMagnetic(1);
+//				 } else {
+//					 zmWaybill.setMagnetic(0);
+//				 }
+//				 if (map.get("液体*:").equals("是")) {
+//					 zmWaybill.setLiquid(1);
+//				 } else {
+//					 zmWaybill.setLiquid(0);
+//				 }
+//				 if (map.get("粉末*:").equals("是")) {
+//					 zmWaybill.setPowder(1);
+//				 } else {
+//					 zmWaybill.setPowder(0);
+//				 }
+//				 if (map.get("危险品*:").equals("是")) {
+//					 zmWaybill.setDangerous(1);
+//				 } else {
+//					 zmWaybill.setDangerous(0);
+//				 }
+//				 if (map.get("报关方式*:").equals("买单报关")) {
+//					 zmWaybill.setCustomsEclaration(0);
+//				 } else if (map.get("报关方式*:").equals("单独报关")) {
+//					 zmWaybill.setCustomsEclaration(1);
+//				 } else {
+//					 zmWaybill.setCustomsEclaration(2);
+//				 }
+//				 if (map.get("清关方式:").equals("买单报关")) {
+//					 zmWaybill.setCustomsEclaration(0);
+//				 } else if (map.get("清关方式:").equals("单独报关")) {
+//					 zmWaybill.setCustomsClearance(1);
+//				 } else {
+//					 zmWaybill.setCustomsClearance(2);
+//				 }
+//				 if (map.get("交税方式*:").equals("包税")) {
+//					 zmWaybill.setTaxPayment(1);
+//				 } else {
+//					 zmWaybill.setTaxPayment(0);
+//				 }
+//				 zmWaybill.setVat((String) map.get("VAT号:"));
+//				 zmWaybill.setReferenceNumber1((String) map.get("参考号一:"));
+//				 zmWaybill.setReferenceNumber2((String) map.get("参考号二:"));
+//				 zmWaybill.setNote((String) map.get("备注:"));
+//				 zmWaybill.setAddressSender((String) map.get("发件人地址编码:"));
+//				 zmWaybill.setNameSender((String) map.get("发件人姓名:"));
+//				 zmWaybill.setCompanySender((String) map.get("发件人公司:"));
+//				 zmWaybill.setCitySender((String) map.get("发件人城市:"));
+//				 zmWaybill.setPostcodeSender((String) map.get("发件人邮编:"));
+//				 zmWaybill.setCitySender((String) map.get("发件人国家代码(二字代码):"));
+//				 zmWaybill.setProvinceSender((String) map.get("发件人省份/州:"));
+//				 zmWaybill.setTelSender((String) map.get("发件人电话:"));
+//				 zmWaybill.setEmailSender((String) map.get("发件人邮箱:"));
+
+				 zmWaybillService.saveMain(zmWaybill, importGoodList);
+//				BeanUtils.copyProperties(page, po);
+				 //插入产品
+				 List<ZmProduct> zmProductList = new ArrayList<>();
+				 for (ZmImportGood zmImportGood : importGoodList) {
+					 ZmProduct zmProduct = new ZmProduct();
+					 zmProduct.setCnName(zmImportGood.getCnName());
+					 zmProduct.setApplication((zmImportGood.getApplication()));
+					 zmProduct.setBrand((zmImportGood.getBrand()));
+					 zmProduct.setCreateBy(zmImportGood.getCreateBy());
+					 zmProduct.setCreateTime(zmImportGood.getCreateTime());
+					 zmProduct.setDeclaredPrice(Double.parseDouble(zmImportGood.getDeclaredPrice()));
+					 zmProduct.setEnName(zmImportGood.getEnName());
+					 zmProduct.setHscode(zmImportGood.getHscode());
+					 zmProduct.setLink(zmImportGood.getLink());
+					 zmProduct.setMaterial(zmImportGood.getMaterial());
+					 zmProduct.setModel(zmImportGood.getModel());
+					 zmProduct.setPicture(zmImportGood.getPicture());
+					 zmProduct.setPrice(zmImportGood.getPrice());
+					 zmProduct.setType(1);
+					 zmProduct.setUpdateBy(zmImportGood.getUpdateBy());
+					 zmProduct.setUpdateTime(zmImportGood.getUpdateTime());
+					 zmProduct.setId(zmImportGood.getId());
+					 zmProductList.add(zmProduct);
+				 }
+
+				 try {
+					 insertUtils.insertProduct(zmProductList);
+					 insertUtils.insertHscode(importGoodList);
+				 } catch (Exception e) {
+					 log.error(e.getMessage(), e);
+				 }
+				 return Result.OK("文件导入成功！数据行数:" + result.getMap());
+			 } catch (Exception e) {
+				 log.error(e.getMessage(), e);
+				 if (e.getMessage().contains("fbaid"))
+					 return Result.error("文件导入失败:fbaid重复");
+				 return Result.error("文件导入失败:" + e.getMessage());
+			 } finally {
+				 try {
+					 file.getInputStream().close();
+				 } catch (IOException e) {
+					 e.printStackTrace();
+				 }
+			 }
+		 }
+
+		 return Result.OK("文件导入失败！");
+	 }
 
 }

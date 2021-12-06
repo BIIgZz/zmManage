@@ -17,7 +17,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * @Description: 运单表
  * @Author: jeecg-boot
- * @Date:   2021-12-02
+ * @Date:   2021-12-06
  * @Version: V1.0
  */
 @Data
@@ -85,8 +85,7 @@ public class ZmWaybillPage {
 	@ApiModelProperty(value = "派送方式")
     private java.lang.String deliveryMethod;
 	/**目的港*/
-	@Excel(name = "目的港", width = 15, dictTable = "zm_airport", dicText = "name", dicCode = "name")
-    @Dict(dictTable = "zm_airport", dicText = "name", dicCode = "name")
+	@Excel(name = "目的港", width = 15)
 	@ApiModelProperty(value = "目的港")
     private java.lang.String destination;
 	/**仓库代码*/

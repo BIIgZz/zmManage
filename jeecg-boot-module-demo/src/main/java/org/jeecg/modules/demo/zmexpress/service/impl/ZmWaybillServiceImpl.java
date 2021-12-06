@@ -16,7 +16,7 @@ import java.util.Collection;
 /**
  * @Description: 运单表
  * @Author: jeecg-boot
- * @Date:   2021-12-02
+ * @Date:   2021-12-06
  * @Version: V1.0
  */
 @Service

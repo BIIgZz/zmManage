@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * @Description: 货柜详情
  * @Author: jeecg-boot
- * @Date:   2021-12-02
+ * @Date:   2021-12-06
  * @Version: V1.0
  */
 public interface IZmImportGoodService extends IService<ZmImportGood> {
