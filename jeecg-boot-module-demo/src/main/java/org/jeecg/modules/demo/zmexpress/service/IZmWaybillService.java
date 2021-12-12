@@ -3,6 +3,8 @@ package org.jeecg.modules.demo.zmexpress.service;
 import org.jeecg.modules.demo.zmexpress.entity.ZmImportGood;
 import org.jeecg.modules.demo.zmexpress.entity.ZmWaybill;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.stereotype.Service;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -10,9 +12,10 @@ import java.util.List;
 /**
  * @Description: 运单表
  * @Author: jeecg-boot
- * @Date:   2021-12-06
+ * @Date:   2021-12-07
  * @Version: V1.0
  */
+@Service
 public interface IZmWaybillService extends IService<ZmWaybill> {
 
 	/**

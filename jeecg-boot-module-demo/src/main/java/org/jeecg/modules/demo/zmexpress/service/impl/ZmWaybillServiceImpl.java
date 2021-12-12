@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Collection;
@@ -16,17 +18,16 @@ import java.util.Collection;
 /**
  * @Description: 运单表
  * @Author: jeecg-boot
- * @Date:   2021-12-06
+ * @Date:   2021-12-07
  * @Version: V1.0
  */
-@Service
 public class ZmWaybillServiceImpl extends ServiceImpl<ZmWaybillMapper, ZmWaybill> implements IZmWaybillService {
 
 	@Autowired
 	private ZmWaybillMapper zmWaybillMapper;
 	@Autowired
 	private ZmImportGoodMapper zmImportGoodMapper;
-	
+
 	@Override
 	@Transactional
 	public void saveMain(ZmWaybill zmWaybill, List<ZmImportGood> zmImportGoodList) {

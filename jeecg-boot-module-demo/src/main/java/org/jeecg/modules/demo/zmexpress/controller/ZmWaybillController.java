@@ -14,7 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.afterturn.easypoi.excel.entity.result.ExcelImportResult;
+import org.jeecg.modules.demo.zmexpress.entity.ZmImportFba;
 import org.jeecg.modules.demo.zmexpress.entity.ZmProduct;
+import org.jeecg.modules.demo.zmexpress.mapper.ZmWaybillMapper;
 import org.jeecg.modules.demo.zmexpress.utils.InsertUtils;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
@@ -49,7 +51,7 @@ import org.jeecg.common.aspect.annotation.AutoLog;
  /**
  * @Description: 运单表
  * @Author: jeecg-boot
- * @Date:   2021-12-06
+ * @Date:   2021-12-07
  * @Version: V1.0
  */
 @Api(tags="运单表")
@@ -61,8 +63,9 @@ public class ZmWaybillController {
 	private IZmWaybillService zmWaybillService;
 	@Autowired
 	private IZmImportGoodService zmImportGoodService;
-	 @Autowired
-	 private InsertUtils insertUtils;
+
+	@Autowired
+	private InsertUtils insertUtils;
 	/**
 	 * 分页列表查询
 	 *
@@ -81,10 +84,12 @@ public class ZmWaybillController {
 								   HttpServletRequest req) {
 		QueryWrapper<ZmWaybill> queryWrapper = QueryGenerator.initQueryWrapper(zmWaybill, req.getParameterMap());
 		Page<ZmWaybill> page = new Page<ZmWaybill>(pageNo, pageSize);
+
 		IPage<ZmWaybill> pageList = zmWaybillService.page(page, queryWrapper);
+		int count = zmWaybillService.count();
+
 		return Result.OK(pageList);
 	}
-	
 	/**
 	 *   添加
 	 *
@@ -225,7 +230,7 @@ public class ZmWaybillController {
     }
 
     /**
-    * 通过excel批量导入数据
+    * 通过excel导入数据
     *
     * @param request
     * @param response
@@ -263,12 +268,35 @@ public class ZmWaybillController {
       return Result.OK("文件导入失败！");
     }
 	 /**
-	  * 通过excel模板导入数据
-	  *
+	  * 放入出货单
+	  * 先获取订单，然后新建一个出货单放入出货单
+	  * 修改订单状态
 	  * @param request
 	  * @param response
 	  * @return
 	  */
+	 @PutMapping(value = "/change")
+	 public Result<?> change(@RequestBody String ids) {
+		 //判断当前订单状态 和 需要转换的状态
+		 ids = ids.replaceAll("[^-?0-9]+", " ");
+		 List<String> list = Arrays.asList(ids.trim().split(" "));
+		 System.out.println(Arrays.asList(ids.trim().split(" ")));
+		 for (String id : list) {
+			 ZmWaybill zmWaybill =zmWaybillService.getById(id);
+			 List<ZmImportGood> zmImportGoods = zmImportGoodService.selectByMainId(id);
+
+			 if (zmWaybill == null) {
+				 return Result.error("未找到对应数据");
+			 }
+			 zmWaybill.setStatus(5+"");
+			 zmWaybillService.updateMain(zmWaybill,zmImportGoods);
+		 }
+		 //切换状态
+
+		 //存储状态
+		 System.out.println("状态更新成功！");
+		 return Result.OK("状态更新成功！");
+	 }
 	 @RequestMapping(value = "/importExcelSingle", method = RequestMethod.POST)
 	 public Result<?> importExcelSingle(HttpServletRequest request, HttpServletResponse response) {
 		 MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
@@ -337,7 +365,7 @@ public class ZmWaybillController {
 //				 zmWaybill.setCountryCode((String) map.get("收件人国家代码(二字代码)*:"));
 //				 zmWaybill.setTel((String) map.get("收件人电话:"));
 //				 zmWaybill.setEmail((String) map.get("收件人邮箱:"));
-//				zmWaybill.setCaseNumber(Integer.parseInt((String) map.get("总箱数*:")) );
+//				zmImportFbaPage.setCaseNumber(Integer.parseInt((String) map.get("总箱数*:")) );
 //				 if (map.get("带电*:").equals("是")) {
 //					 zmWaybill.setElectrical(1);
 //				 } else {
@@ -428,6 +456,7 @@ public class ZmWaybillController {
 				 } catch (Exception e) {
 					 log.error(e.getMessage(), e);
 				 }
+
 				 return Result.OK("文件导入成功！数据行数:" + result.getMap());
 			 } catch (Exception e) {
 				 log.error(e.getMessage(), e);
@@ -446,4 +475,4 @@ public class ZmWaybillController {
 		 return Result.OK("文件导入失败！");
 	 }
 
-}
+ }

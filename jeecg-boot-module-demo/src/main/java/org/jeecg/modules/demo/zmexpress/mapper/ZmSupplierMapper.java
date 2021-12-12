@@ -7,9 +7,9 @@ import org.jeecg.modules.demo.zmexpress.entity.ZmSupplier;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
- * @Description: 供应商
+ * @Description: zm_supplier
  * @Author: jeecg-boot
- * @Date:   2021-10-10
+ * @Date:   2021-12-12
  * @Version: V1.0
  */
 public interface ZmSupplierMapper extends BaseMapper<ZmSupplier> {
